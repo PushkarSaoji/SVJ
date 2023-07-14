@@ -208,7 +208,6 @@ vector<pair<Particle,vector<int>>> sub_sift (const Event& event){
 	}
 	int N=part_temp.size();
 	vector<double> delta(N*(N-1)/2);
-	cout << "N :" << N << endl;
 	int k=0;
 	for (int i1=0; i1< N-1; i1++){
       	for (int j1=i1+1; j1< N; j1++){
@@ -233,7 +232,6 @@ vector<pair<Particle,vector<int>>> sub_sift (const Event& event){
 			if (k_test >1) break;
 		}
 		if (k_test==1){
-			cout << "entered the loop" << endl;
 			set<int> temp_set;
 			for (int i8=0; i8< N*(N-1)/2; i8++){
 				if (delta[i8] != DBL_MAX){
