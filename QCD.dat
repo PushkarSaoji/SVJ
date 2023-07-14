@@ -1,0 +1,10 @@
+HardQCD:all = on
+PhaseSpace:pTHatMin = 15
+PhaseSpace:pTHatMax = 7000
+PhaseSpace:bias2Selection = on
+PhaseSpace:bias2SelectionPow = 4.5
+PhaseSpace:bias2SelectionRef = 100.
+#PhaseSpace:mHatMin = 1000
+Beams:idA =  2212
+Beams:idB =  2212
+Beams:eCM = 13600.
