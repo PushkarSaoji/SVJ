@@ -167,6 +167,7 @@ int main() {
 	}
     }
 
+// For verifying the closest pair
 //    vector <double> dist_t;
 //    int N_t= particles.size();
 //    double min_dist=DBL_MAX;
