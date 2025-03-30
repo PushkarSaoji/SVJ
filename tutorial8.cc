@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <random>
 #include <float.h>
+#include <chrono>
 
 using namespace Pythia8;
 
@@ -21,7 +22,6 @@ double dot(const Particle &p1, const Particle &p2) {
 double del_ab(const Particle &p1, const Particle &p2) {
     // Assume pT() is defined in Particle (or computed as sqrt(px^2+py^2))
     double metric = dot(p1, p2) / ( std::pow(p1.pT(), 2) + std::pow(p2.pT(), 2) );
-    cout << " used " << endl;
     return std::pow(metric, 0.03);
 }
 
@@ -142,9 +142,13 @@ private:
 int main() {
     // For demonstration, we create a few dummy Particle objects.
     // In actual use with Pythia8, these Particle objects would be produced by the generator.
-    
-    int nEvent  = 1;
+    bool pout =0;
+    int nEvent  = 1000;
     Pythia pythia;
+    ofstream myfile1, myfile2;
+    
+    myfile1.open("tree_time.csv");
+    myfile2.open("search_time.csv");
     
     // Process selection.
   pythia.readFile("QCD.dat");
@@ -157,7 +161,11 @@ int main() {
     if (!pythia.next()) continue;
     
     std::vector<Particle> particles;
+
+    double t_tot_1 =0;
+    double t_tot_2 =0;
     
+
     for (int i=1; i<pythia.event.size(); i++){
       if (pythia.event[i].status() > 0){
         if (abs(pythia.event[i].eta())>5) continue;
@@ -167,9 +175,8 @@ int main() {
 	}
     }
 
-// For verifying the closest pair
 //    vector <double> dist_t;
-//    int N_t= particles.size();
+      int N_t= particles.size();
 //    double min_dist=DBL_MAX;
 //    double dist;
 //    for (int i_t=0; i_t < N_t; i_t++){
@@ -182,7 +189,9 @@ int main() {
 //    cout << " sizes : " << N_t << "  " << dist_t.size() << "min_dist = " << min_dist << endl;
 //    
 //    
-     
+    
+    auto t1 = std::chrono::high_resolution_clock::now();
+
     // Build a vector of pointers to the Particle objects.
     std::vector<const Particle*> particle_ptrs;
     for (const auto &p : particles) {
@@ -192,10 +201,18 @@ int main() {
     // Build the VP-tree using our custom metric.
     VPTree tree(particle_ptrs);
 
+    auto t2 = std::chrono::high_resolution_clock::now();
+
+    t_tot_1= t_tot_1 + std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+
+    myfile1 << N_t << " , " << t_tot_1 << " , ";
+
     const Particle* best_pair_first = nullptr;
     const Particle* best_pair_second = nullptr;
     double global_best = std::numeric_limits<double>::max();
 
+
+    t1 = std::chrono::high_resolution_clock::now();
     // For each particle, search for its nearest neighbor.
     for (const Particle* p : particle_ptrs) {
         auto res = tree.nearest_neighbor(p);
@@ -205,19 +222,25 @@ int main() {
             best_pair_second = res.first;
         }
     }
+    t2 = std::chrono::high_resolution_clock::now();
 
+    t_tot_2= t_tot_2+ std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+
+    myfile1 << t_tot_2 << endl;
     // Report the best pair.
-    if (best_pair_first && best_pair_second) {
-        std::cout << "Pair with the smallest distance:\n";
-        std::cout << "Particle 1: (px = " << best_pair_first->px() << ", py = " << best_pair_first->py()
-                  << ", pz = " << best_pair_first->pz() << ", e = " << best_pair_first->e()
-                  << ", pT = " << best_pair_first->pT() << ")\n";
-        std::cout << "Particle 2: (px = " << best_pair_second->px() << ", py = " << best_pair_second->py()
-                  << ", pz = " << best_pair_second->pz() << ", e = " << best_pair_second->e()
-                  << ", pT = " << best_pair_second->pT() << ")\n";
-        std::cout << "Minimum distance (del_ab): " << global_best << "\n";
-    } else {
-        std::cout << "Not enough particles to find a pair.\n";
+    if (pout){
+        if (best_pair_first && best_pair_second) {
+            std::cout << "Pair with the smallest distance:\n";
+            std::cout << "Particle 1: (px = " << best_pair_first->px() << ", py = " << best_pair_first->py()
+                    << ", pz = " << best_pair_first->pz() << ", e = " << best_pair_first->e()
+                    << ", pT = " << best_pair_first->pT() << ")\n";
+            std::cout << "Particle 2: (px = " << best_pair_second->px() << ", py = " << best_pair_second->py()
+                    << ", pz = " << best_pair_second->pz() << ", e = " << best_pair_second->e()
+                    << ", pT = " << best_pair_second->pT() << ")\n";
+            std::cout << "Minimum distance (del_ab): " << global_best << "\n";
+        } else {
+            std::cout << "Not enough particles to find a pair.\n";
+        }
     }
   }
     return 0;
