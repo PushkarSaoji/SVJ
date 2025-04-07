@@ -139,6 +139,18 @@ private:
     }
 };
 
+void search(VPTree& tree, std::vector<const Particle*>& particle_ptrs, const Particle*& best_pair_first, const Particle*& best_pair_second, double& global_best){
+   // For each particle, search for its nearest neighbor.
+    for (const Particle* p : particle_ptrs) {
+        auto res = tree.nearest_neighbor(p);
+        if (res.first != nullptr && res.second < global_best) {
+            global_best = res.second;
+            best_pair_first = p;
+            best_pair_second = res.first;
+        }
+    }
+}
+
 int main() {
     // For demonstration, we create a few dummy Particle objects.
     // In actual use with Pythia8, these Particle objects would be produced by the generator.
@@ -213,15 +225,7 @@ int main() {
 
 
     t1 = std::chrono::high_resolution_clock::now();
-    // For each particle, search for its nearest neighbor.
-    for (const Particle* p : particle_ptrs) {
-        auto res = tree.nearest_neighbor(p);
-        if (res.first != nullptr && res.second < global_best) {
-            global_best = res.second;
-            best_pair_first = p;
-            best_pair_second = res.first;
-        }
-    }
+    search(tree, particle_ptrs, best_pair_first, best_pair_second, global_best);
     t2 = std::chrono::high_resolution_clock::now();
 
     t_tot_2= t_tot_2+ std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
