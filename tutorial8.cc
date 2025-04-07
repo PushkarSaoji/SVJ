@@ -247,6 +247,7 @@ int main() {
         }
     }
   }
+  pythia.stat();
     return 0;
 }
 
