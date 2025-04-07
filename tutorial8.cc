@@ -154,7 +154,7 @@ void search(VPTree& tree, std::vector<const Particle*>& particle_ptrs, const Par
 int main() {
     // For demonstration, we create a few dummy Particle objects.
     // In actual use with Pythia8, these Particle objects would be produced by the generator.
-    bool pout =0;
+    int debug = 0;
     int nEvent  = 1000;
     Pythia pythia;
     ofstream myfile1, myfile2;
@@ -182,26 +182,26 @@ int main() {
       if (pythia.event[i].status() > 0){
         if (abs(pythia.event[i].eta())>5) continue;
         if (!pythia.event[i].isVisible()) continue;
-//  
-	particles.push_back(pythia.event[i]);
-	}
+        particles.push_back(pythia.event[i]);
+      }
     }
 
-//    vector <double> dist_t;
-      int N_t= particles.size();
-//    double min_dist=DBL_MAX;
-//    double dist;
-//    for (int i_t=0; i_t < N_t; i_t++){
-//    	for (int j_t=i_t+1; j_t< N_t; j_t++){
-//    	dist=del_ab(particles[i_t],particles[j_t]);
-//    		dist_t.push_back(dist);
-//    		if (dist< min_dist) min_dist=dist;
-//    		
-//    }}
-//    cout << " sizes : " << N_t << "  " << dist_t.size() << "min_dist = " << min_dist << endl;
-//    
-//    
-    
+    int N_t= particles.size();
+
+    if(debug>1){
+      vector <double> dist_t;
+      double min_dist=DBL_MAX;
+      double dist;
+      for (int i_t=0; i_t < N_t; i_t++){
+        for (int j_t=i_t+1; j_t< N_t; j_t++){
+          dist=del_ab(particles[i_t],particles[j_t]);
+          dist_t.push_back(dist);
+          if (dist< min_dist) min_dist=dist;
+        }
+      }
+      cout << " sizes : " << N_t << "  " << dist_t.size() << " -> min_dist = " << min_dist << endl;
+    }
+
     auto t1 = std::chrono::high_resolution_clock::now();
 
     // Build a vector of pointers to the Particle objects.
@@ -232,7 +232,7 @@ int main() {
 
     myfile1 << t_tot_2 << endl;
     // Report the best pair.
-    if (pout){
+    if (debug>0){
         if (best_pair_first && best_pair_second) {
             std::cout << "Pair with the smallest distance:\n";
             std::cout << "Particle 1: (px = " << best_pair_first->px() << ", py = " << best_pair_first->py()
