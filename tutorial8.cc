@@ -45,12 +45,16 @@ public:
 
     // Returns a pair: (pointer to nearest neighbor, distance to it)
     std::pair<const Particle*, double> nearest_neighbor(const Particle* query) {
+        counter_ = 0;
         return search(root.get(), query, nullptr, std::numeric_limits<double>::max());
     }
+
+    unsigned counter() const { return counter_; }
 
 private:
     std::unique_ptr<VPNode> root;
     std::mt19937 rng{std::random_device{}()};
+    unsigned counter_=0;
 
     // Recursively build the VP-tree.
     std::unique_ptr<VPNode> build(std::vector<const Particle*>& items) {
@@ -106,6 +110,7 @@ private:
             return { best, best_dist };
 
         double d = del_ab(*query, *(node->point));
+        ++counter_;
         // Do not compare the query with itself.
         if (query != node->point && d < best_dist) {
             best = node->point;
@@ -230,7 +235,7 @@ int main() {
 
     t_tot_2= t_tot_2+ std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
-    myfile1 << t_tot_2 << endl;
+    myfile1 << t_tot_2 << ", " << tree.counter() << endl;
     // Report the best pair.
     if (debug>0){
         if (best_pair_first && best_pair_second) {
