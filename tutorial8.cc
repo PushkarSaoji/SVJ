@@ -45,7 +45,7 @@ public:
 
     // Returns a pair: (pointer to nearest neighbor, distance to it)
     std::pair<const Particle*, double> nearest_neighbor(const Particle* query) {
-        counter_ = 0;
+//        counter_ = 0;
         return search(root.get(), query, nullptr, std::numeric_limits<double>::max());
     }
 
