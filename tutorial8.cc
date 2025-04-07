@@ -193,18 +193,22 @@ int main() {
 
     int N_t= particles.size();
 
+    double t_dbg = 0;
     if(debug>1){
-      vector <double> dist_t;
+      auto td1 = std::chrono::high_resolution_clock::now();
       double min_dist=DBL_MAX;
       double dist;
+      int d_counter = 0;
       for (int i_t=0; i_t < N_t; i_t++){
         for (int j_t=i_t+1; j_t< N_t; j_t++){
           dist=del_ab(particles[i_t],particles[j_t]);
-          dist_t.push_back(dist);
+          ++d_counter;
           if (dist< min_dist) min_dist=dist;
         }
       }
-      cout << " sizes : " << N_t << "  " << dist_t.size() << " -> min_dist = " << min_dist << endl;
+      auto td2 = std::chrono::high_resolution_clock::now();
+      t_dbg = t_dbg + std::chrono::duration_cast<std::chrono::microseconds>(td2 - td1).count();
+      cout << " sizes : " << N_t << "  " << d_counter << " -> min_dist = " << min_dist << endl;
     }
 
     auto t1 = std::chrono::high_resolution_clock::now();
@@ -235,7 +239,9 @@ int main() {
 
     t_tot_2= t_tot_2+ std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
-    myfile1 << t_tot_2 << ", " << tree.counter() << endl;
+    myfile1 << t_tot_2 << ", " << tree.counter();
+    if(debug>1) myfile1 << ", " << t_dbg;
+    myfile1 << std::endl;
     // Report the best pair.
     if (debug>0){
         if (best_pair_first && best_pair_second) {
