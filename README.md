@@ -7,3 +7,4 @@ The test code is compiled using [Makefile](Makefile).<br />
 In [tutorial2.cc](tutorial2.cc), I am trying to make the program faster by using VP Trees to find the closest pair of particles.
 [tutorial3.cc](tutorial3.cc) contains the implementation of the Heap-Based algorithm, achieving significant speedup over the other implementations. 
 In [tutorial4.cc](tutorial4.cc), ghost particles are added to check the time complexity for larger events.
+Data for time taken vs number of particles can be found at [t_c.csv](t_c.csv).
